@@ -20,6 +20,7 @@ package <yourpackage>
 import (
   "github.com/sittercity/gocumber"
 )
+```
 
 # Usage
 
