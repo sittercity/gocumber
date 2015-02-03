@@ -102,5 +102,5 @@ This will download all dependencies if you don't already have them.
 
 # TODO
 
- - Need tests
  - Does not append gherkin background
+ - Does not replace outline variables in PyString (like json), must use table format for outline data

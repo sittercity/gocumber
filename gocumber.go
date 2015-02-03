@@ -177,8 +177,9 @@ func outlineSteps(outline nodes.OutlineNode, callback func(nodes.StepNode)) {
 
 			step.SetTable(table)
 		} else if original.PyString() != nil {
-			// FIXME
-			step.SetPyString(nodes.NewMutablePyStringNode())
+			//TODO We should implement the replacing of outline variables in the PyString
+			// just as we do above for a table. Until it is used we'll keep it commented out.
+			//step.SetPyString(nodes.NewMutablePyStringNode())
 		}
 
 		callback(step)
