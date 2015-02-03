@@ -35,22 +35,6 @@ func ColumnMap(table Table) map[string]string {
 	return result
 }
 
-// Helper method to address weird edge cases. See test case for specific
-// behavior.
-//TODO Need to revisit this function, the name is misleading
-func RowMap(table Table) map[string]string {
-	result := make(map[string]string)
-
-	header := table.Rows()[0]
-	for _, row := range table.Rows()[1:] {
-		for i, key := range header {
-			result[key] = row[i]
-		}
-	}
-
-	return result
-}
-
 func (defs Definitions) Step(text string, def Definition) {
 	defs[regexp.MustCompile("^"+text+"$")] = def
 }

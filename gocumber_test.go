@@ -64,19 +64,6 @@ func TestParseFile_SuccessWithPyString(t *testing.T) {
 	assert.Empty(t, errs)
 }
 
-func TestRowMap_Happy(t *testing.T) {
-	steps := make(Definitions)
-
-	steps.When("I create something with the following table data:", func([]string, StepNode) {})
-
-	definitions, errs := steps.parseFile("test/valid_with_table_data.feature")
-	assert.Empty(t, errs)
-
-	result := RowMap(definitions[0].step.Table())
-	assert.Equal(t, "key3", result["key"])
-	assert.Equal(t, "value3", result["value"])
-}
-
 func TestColumnMap_Happy(t *testing.T) {
 	steps := make(Definitions)
 
