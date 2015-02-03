@@ -30,7 +30,7 @@ General example:
 func TestYourStuff(t *testing.T) {
   steps := make(gocumber.Definitions)
 
-  steps.Given("I have an existing user", func(matches []string, _ gocumber.StepNode) {
+  steps.Given(`I have an existing user with name "(.*)"`, func(matches []string, _ gocumber.StepNode) {
     // your code to create a user, you can use 'matches[1]' to pull out the
     // name, like so: user_name := matches[1]
   })
@@ -64,6 +64,19 @@ You can use `When` and `Then` like you would expect:
   })
 ```
 
+If you would like to define data in a table you can access it with the following:
+
+```go
+  steps.Given("I have an existing user with following data:", func(matches []string, step gocumber.StepNode) {
+    inputData = make(map[string]string)
+    for _, row := range step.Table().Rows() {
+      inputData[row[0]] = row[1]
+    }
+
+    // Use the inputData map to access your data
+  })
+```
+
 If you have gherkin that includes a JSON payload you can retrieve it like so:
 
 ```go
@@ -79,10 +92,9 @@ Once all of your steps are defined you run them at the end of your file:
 steps.Run(t, "your_gherkin.feature")
 ```
 
-A full example file with all of the above (with gherkin) is forthcoming.
+A full example file with all of the above can be found in the example directory.
 
 # TODO
 
  - Need tests
- - Should create a full example for clarity (with gherkin)
  - Does not append gherkin background
