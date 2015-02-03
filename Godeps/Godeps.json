@@ -1,0 +1,11 @@
+{
+	"ImportPath": "github.com/sittercity/gocumber",
+	"GoVersion": "go1.2.1",
+	"Deps": [
+		{
+			"ImportPath": "github.com/muhqu/go-gherkin",
+			"Comment": "v0.1.4",
+			"Rev": "5a54b7215aaeb5ee9f9a2e7ab130b89d7e5c15eb"
+		}
+	]
+}

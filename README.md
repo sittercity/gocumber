@@ -94,6 +94,12 @@ steps.Run(t, "your_gherkin.feature")
 
 A full example file with all of the above can be found in the example directory.
 
+# Running Tests
+
+Couldn't be more simple: `make test`
+
+This will download all dependencies if you don't already have them.
+
 # TODO
 
  - Need tests
