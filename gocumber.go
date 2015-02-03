@@ -1,11 +1,13 @@
 package gocumber
 
 import (
-	"github.com/muhqu/go-gherkin"
-	"github.com/muhqu/go-gherkin/nodes"
+	"errors"
 	"io/ioutil"
 	"regexp"
 	"testing"
+
+	"github.com/muhqu/go-gherkin"
+	"github.com/muhqu/go-gherkin/nodes"
 )
 
 type Definition func([]string, StepNode)
@@ -33,6 +35,9 @@ func ColumnMap(table Table) map[string]string {
 	return result
 }
 
+// Helper method to address weird edge cases. See test case for specific
+// behavior.
+//TODO Need to revisit this function, the name is misleading
 func RowMap(table Table) map[string]string {
 	result := make(map[string]string)
 
@@ -99,10 +104,27 @@ func (defs *Definitions) When(text string, def Definition)  { defs.Step(text, de
 func (defs *Definitions) Then(text string, def Definition)  { defs.Step(text, def) }
 
 func (defs *Definitions) Run(t *testing.T, file string) {
+	definitions, errs := defs.parseFile(file)
+
+	if errs != nil && len(errs) != 0 {
+		for _, err := range errs {
+			t.Errorf(err.Error())
+		}
+	} else {
+		for _, definition := range definitions {
+			definition.execute()
+		}
+	}
+}
+
+func (defs *Definitions) parseFile(file string) (definitions []matchedDefinition, errs []error) {
+	definitions = make([]matchedDefinition, 0, 0)
+	errs = make([]error, 0, 0)
+
 	if buffer, err := ioutil.ReadFile(file); err != nil {
-		t.Error(err.Error())
+		errs = append(errs, err)
 	} else if feature, err := gherkin.ParseGherkinFeature(string(buffer)); err != nil {
-		t.Error(err.Error())
+		errs = append(errs, err)
 	} else {
 		for _, scenario := range feature.Scenarios() {
 			var steps []nodes.StepNode
@@ -124,15 +146,17 @@ func (defs *Definitions) Run(t *testing.T, file string) {
 
 			if len(missing) == 0 {
 				for _, definition := range matched {
-					definition.execute()
+					definitions = append(definitions, definition)
 				}
 			} else {
 				for _, step := range missing {
-					t.Errorf("Undefined step:\n%s %s", step.StepType(), step.Text())
+					errs = append(errs, errors.New("Undefined step:\n"+step.StepType()+" "+step.Text()))
 				}
 			}
 		}
 	}
+
+	return definitions, errs
 }
 
 func outlineSteps(outline nodes.OutlineNode, callback func(nodes.StepNode)) {
