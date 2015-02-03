@@ -26,6 +26,10 @@ func TestExample(t *testing.T) {
 
 	var responseUser userEntity
 
+	steps.Given("I have no users", func([]string, gocumber.StepNode) {
+		users = make(map[string]userEntity)
+	})
+
 	steps.Given(`I have an existing user with the name "(.*)"`, func(matches []string, _ gocumber.StepNode) {
 		user := userEntity{
 			username:  matches[1],
@@ -125,6 +129,10 @@ func TestExample(t *testing.T) {
 		assert.Equal(t, expectedUserData[1]["username"], responseUser.username)
 		assert.Equal(t, expectedUserData[1]["first"], responseUser.first)
 		assert.Equal(t, expectedUserData[1]["last"], responseUser.last)
+	})
+
+	steps.Then("no users should be created", func([]string, gocumber.StepNode) {
+		// no-op
 	})
 
 	steps.Run(t, "example.feature")

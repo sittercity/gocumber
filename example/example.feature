@@ -47,3 +47,20 @@ Feature: gocumber example feature
     Then I should see the following data:
       | username | first | last |
       | CoolDude | Cool  | Dude |
+
+  Scenario Outline: Create user with bad data
+    Given I have no users
+    When I create a user with the following table data:
+      | key      | value      |
+      | username | <username> |
+      | first    | <first>    |
+      | last     | <last>     |
+    Then no users should be created
+
+    Examples:
+      | username | first | last  |
+      |          |       |       |
+      |          | fname | lname |
+      | uuid     |       | lname |
+      | uuid     | fname |       |
+      | uuid     | fname | lname |
