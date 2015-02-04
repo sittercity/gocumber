@@ -1,31 +1,28 @@
-test: deps
-	$(GOPATH)/bin/godep go test ./...
+default: test
 
-deps: .godep-install
+test: unit-test
+	mkdir -p reports/cov reports/unit
+	godep go test -coverprofile reports/gocumber.cov -v . > reports/gocumber.txt
+	[ ! -f reports/gocumber.cov ] || gocov convert reports/gocumber.cov | gocov-xml > reports/cov/gocumber.xml
+	[ ! -f reports/gocumber.cov ] || gocov convert reports/gocumber.cov | gocov-html > reports/cov/gocumber.html
+	[ ! -f reports/gocumber.txt ] || go-junit-report < reports/gocumber.txt > reports/unit/gocumber.xml
 
-.godep-install: $(GOPATH)/bin/godep $(GOPATH)/src/github.com/sittercity/gocumber/Godeps/Godeps.json
-	$(GOPATH)/bin/godep restore
+unit-test: .godep-install
+	godep go test -cover .
+
+.godep-install: Godeps/Godeps.json
+	command -v gocov > /dev/null || go get github.com/axw/gocov/...
+	command -v gocov-xml > /dev/null || go get github.com/AlekSi/gocov-xml
+	command -v gocov-html > /dev/null || go get gopkg.in/matm/v1/gocov-html
+	command -v go-junit-report > /dev/null || go get github.com/wancw/go-junit-report
+	godep restore
 	touch .godep-install
 
-
-test-cov: deps test-deps
-	mkdir -p reports/cov
-	$(GOPATH)/bin/gocov test github.com/sittercity/gocumber | $(GOPATH)/bin/gocov-xml > reports/cov/gocumber.xml
-
-test-cov-html: deps test-deps
-	mkdir -p reports/cov
-	$(GOPATH)/bin/gocov test github.com/sittercity/gocumber | $(GOPATH)/bin/gocov-html > reports/cov/gocumber.html
-
-test-deps: $(GOPATH)/bin/gocov $(GOPATH)/bin/gocov-xml $(GOPATH)/bin/gocov-html $(GOPATH)/bin/go-junit-report
-
-$(GOPATH)/bin/gocov:
+setup: .godep-install
 	go get github.com/axw/gocov/...
-
-$(GOPATH)/bin/gocov-xml:
 	go get github.com/AlekSi/gocov-xml
-
-$(GOPATH)/bin/gocov-html:
-	go get gopkg.in/matm/v1/gocov-html
-
-$(GOPATH)/bin/go-junit-report:
+	go get github.com/matm/v1/gocov-html
 	go get github.com/wancw/go-junit-report
+
+clean:
+	rm -rf reports
