@@ -2,7 +2,7 @@
 
 Go code (golang) package that provides tools for defining and executing gherkin steps.
 
-This package uses the [go-gherkin] package by [@muhqu]. Thanks buddy!
+This uses the [go-gherkin](https://github.com/muhqu/go-gherkin) package by [@muhqu](https://github.com/muhqu). Thanks buddy!
 
 ## Installation
 
