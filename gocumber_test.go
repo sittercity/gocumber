@@ -6,7 +6,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestRun(t *testing.T) {
+func TestRun_HappyPath(t *testing.T) {
 	steps := make(Definitions)
 
 	// Simply defining steps to prove that it parses right, no need to fill them in
@@ -14,6 +14,17 @@ func TestRun(t *testing.T) {
 	steps.Then("the user should be created with the expected data", func([]string, StepNode) {})
 
 	steps.Run(t, "test/valid.feature")
+}
+
+func TestRun_WithFailures(t *testing.T) {
+	steps := make(Definitions)
+
+	localT := &testing.T{}
+
+	// Not defining any steps so we receive failures for unknown steps
+	steps.Run(localT, "test/valid.feature")
+
+	assert.True(t, localT.Failed())
 }
 
 func TestParseFile_FailsOnEmptyFile(t *testing.T) {
