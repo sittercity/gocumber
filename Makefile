@@ -11,18 +11,15 @@ unit-test: .godep-install
 	godep go test -cover .
 
 .godep-install: Godeps/Godeps.json
-	command -v gocov > /dev/null || go get github.com/axw/gocov/...
-	command -v gocov-xml > /dev/null || go get github.com/AlekSi/gocov-xml
-	command -v gocov-html > /dev/null || go get gopkg.in/matm/v1/gocov-html
-	command -v go-junit-report > /dev/null || go get github.com/wancw/go-junit-report
+	command -v godep > /dev/null || go get github.com/tools/godep
 	godep restore
 	touch .godep-install
 
 setup: .godep-install
-	go get github.com/axw/gocov/...
-	go get github.com/AlekSi/gocov-xml
-	go get github.com/matm/v1/gocov-html
-	go get github.com/wancw/go-junit-report
+	command -v gocov > /dev/null || go get github.com/axw/gocov/...
+	command -v gocov-xml > /dev/null || go get github.com/AlekSi/gocov-xml
+	command -v gocov-html > /dev/null || go get gopkg.in/matm/v1/gocov-html
+	command -v go-junit-report > /dev/null || go get github.com/wancw/go-junit-report
 
 clean:
 	rm -rf reports

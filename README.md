@@ -96,9 +96,10 @@ A full example file with all of the above can be found in the example directory.
 
 # Running Tests
 
-Couldn't be more simple: `make test`
+Couldn't be more simple:
 
-This will download all dependencies if you don't already have them.
+* run `make setup` - Downloads testing dependencies. This only needs to be run once.
+* run `make test`  - Runs the actual tests (including test coverage).
 
 # TODO
 
