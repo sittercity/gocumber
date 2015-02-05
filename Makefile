@@ -23,3 +23,5 @@ setup: .godep-install
 
 clean:
 	rm -rf reports
+
+.PHONY: clean default setup test unit-test
