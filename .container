@@ -1,0 +1,2 @@
+SC_TEST_CN_BASE=golang
+SC_TEST_CN_CLONE_PATH=/home/ubuntu/go/src/github.com/sittercity/gocumber
