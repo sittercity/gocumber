@@ -92,7 +92,7 @@ func (defs *Definitions) Run(t *testing.T, file string) {
 
 	if errs != nil && len(errs) != 0 {
 		for _, err := range errs {
-			t.Errorf(err.Error())
+			t.Error(err.Error())
 		}
 	} else {
 		for _, definition := range definitions {
