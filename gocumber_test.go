@@ -1,10 +1,17 @@
 package gocumber
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
+
+type mockTestingFramework struct{}
+
+func (t *mockTestingFramework) Error(args ...interface{}) {
+	fmt.Println(args...)
+}
 
 func TestRun_HappyPath(t *testing.T) {
 	steps := make(Definitions)
@@ -25,6 +32,17 @@ func TestRun_WithFailures(t *testing.T) {
 	steps.Run(localT, "test/valid.feature")
 
 	assert.True(t, localT.Failed())
+}
+
+func ExampleRun_WithFailures() {
+	steps := make(Definitions)
+
+	localT := &mockTestingFramework{}
+	steps.Run(localT, "test/valid_with_url_params.feature")
+
+	// Output:
+	// Undefined step:
+	// When I get "/something/%{UUID}"
 }
 
 func TestParseFile_FailsOnEmptyFile(t *testing.T) {

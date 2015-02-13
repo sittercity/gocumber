@@ -4,7 +4,6 @@ import (
 	"errors"
 	"io/ioutil"
 	"regexp"
-	"testing"
 
 	"github.com/muhqu/go-gherkin"
 	"github.com/muhqu/go-gherkin/nodes"
@@ -23,6 +22,10 @@ type matchedDefinition struct {
 
 func (matched matchedDefinition) execute() {
 	matched.definition(matched.matches, matched.step)
+}
+
+type testingFramework interface {
+	Error(args ...interface{})
 }
 
 func ColumnMap(table Table) map[string]string {
@@ -87,7 +90,7 @@ func (defs *Definitions) Given(text string, def Definition) { defs.Step(text, de
 func (defs *Definitions) When(text string, def Definition)  { defs.Step(text, def) }
 func (defs *Definitions) Then(text string, def Definition)  { defs.Step(text, def) }
 
-func (defs *Definitions) Run(t *testing.T, file string) {
+func (defs *Definitions) Run(t testingFramework, file string) {
 	definitions, errs := defs.parseFile(file)
 
 	if errs != nil && len(errs) != 0 {
