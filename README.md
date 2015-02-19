@@ -1,5 +1,7 @@
 # gocumber
 
+[![Build Status](https://travis-ci.org/sittercity/gocumber.svg?branch=master)](https://travis-ci.org/sittercity/gocumber)
+
 Go code (golang) package that provides tools for defining and executing gherkin steps.
 
 This uses the [go-gherkin](https://github.com/muhqu/go-gherkin) package by [@muhqu](https://github.com/muhqu). Thanks buddy!
