@@ -7,11 +7,11 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-type mockTestingFramework struct{}
-
-func (t *mockTestingFramework) Error(args ...interface{}) {
-	fmt.Println(args...)
+type FuncTestingFramework struct {
+	err func(args ...interface{})
 }
+
+func (t FuncTestingFramework) Error(args ...interface{}) { t.err(args...) }
 
 func TestRun_HappyPath(t *testing.T) {
 	steps := make(Definitions)
@@ -37,8 +37,10 @@ func TestRun_WithFailures(t *testing.T) {
 func ExampleRun_WithFailures() {
 	steps := make(Definitions)
 
-	localT := &mockTestingFramework{}
-	steps.Run(localT, "test/valid_with_url_params.feature")
+	t := FuncTestingFramework{
+		err: func(args ...interface{}) { fmt.Println(args...) },
+	}
+	steps.Run(t, "test/valid_with_url_params.feature")
 
 	// Output:
 	// Undefined step:
