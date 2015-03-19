@@ -1,7 +1,7 @@
 package gocumber
 
 import (
-	"errors"
+	"fmt"
 	"io/ioutil"
 	"regexp"
 
@@ -26,6 +26,7 @@ func (matched matchedDefinition) execute() {
 
 type testingFramework interface {
 	Error(args ...interface{})
+	Log(args ...interface{})
 }
 
 func ColumnMap(table Table) map[string]string {
@@ -91,27 +92,10 @@ func (defs *Definitions) When(text string, def Definition)  { defs.Step(text, de
 func (defs *Definitions) Then(text string, def Definition)  { defs.Step(text, def) }
 
 func (defs *Definitions) Run(t testingFramework, file string) {
-	definitions, errs := defs.parseFile(file)
-
-	if errs != nil && len(errs) != 0 {
-		for _, err := range errs {
-			t.Error(err.Error())
-		}
-	} else {
-		for _, definition := range definitions {
-			definition.execute()
-		}
-	}
-}
-
-func (defs *Definitions) parseFile(file string) (definitions []matchedDefinition, errs []error) {
-	definitions = make([]matchedDefinition, 0, 0)
-	errs = make([]error, 0, 0)
-
 	if buffer, err := ioutil.ReadFile(file); err != nil {
-		errs = append(errs, err)
+		t.Error(err)
 	} else if feature, err := gherkin.ParseGherkinFeature(string(buffer)); err != nil {
-		errs = append(errs, err)
+		t.Error(err)
 	} else {
 		for _, scenario := range feature.Scenarios() {
 			var steps []nodes.StepNode
@@ -132,18 +116,17 @@ func (defs *Definitions) parseFile(file string) (definitions []matchedDefinition
 			matched, missing := defs.findAll(steps)
 
 			if len(missing) == 0 {
+				t.Log("Scenario: " + scenario.Title())
 				for _, definition := range matched {
-					definitions = append(definitions, definition)
+					definition.execute()
 				}
 			} else {
 				for _, step := range missing {
-					errs = append(errs, errors.New("Undefined step:\n"+step.StepType()+" "+step.Text()))
+					t.Error(fmt.Errorf("Undefined step:\n%s %s", step.StepType(), step.Text()))
 				}
 			}
 		}
 	}
-
-	return definitions, errs
 }
 
 func outlineSteps(outline nodes.OutlineNode, callback func(nodes.StepNode)) {

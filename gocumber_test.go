@@ -7,11 +7,13 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-type mockTestingFramework struct{}
-
-func (t *mockTestingFramework) Error(args ...interface{}) {
-	fmt.Println(args...)
+type FuncTestingFramework struct {
+	err func(args ...interface{})
+	log func(args ...interface{})
 }
+
+func (t FuncTestingFramework) Error(args ...interface{}) { t.err(args...) }
+func (t FuncTestingFramework) Log(args ...interface{})   { t.log(args...) }
 
 func TestRun_HappyPath(t *testing.T) {
 	steps := make(Definitions)
@@ -23,89 +25,104 @@ func TestRun_HappyPath(t *testing.T) {
 	steps.Run(t, "test/valid.feature")
 }
 
-func TestRun_WithFailures(t *testing.T) {
+func TestRun_FailsOnMissingFile(t *testing.T) {
 	steps := make(Definitions)
+	tt := new(testing.T)
 
-	localT := &testing.T{}
+	steps.Run(tt, "file_does_not_exist")
 
-	// Not defining any steps so we receive failures for unknown steps
-	steps.Run(localT, "test/valid.feature")
-
-	assert.True(t, localT.Failed())
+	assert.True(t, tt.Failed())
 }
 
-func ExampleRun_WithFailures() {
+func TestRun_FailsOnInvalidGherkin(t *testing.T) {
+	steps := make(Definitions)
+	tt := new(testing.T)
+
+	steps.Run(tt, "test/invalid.feature")
+
+	assert.True(t, tt.Failed())
+}
+
+func TestRun_FailsOnUndefinedSteps(t *testing.T) {
+	steps := make(Definitions)
+	tt := new(testing.T)
+
+	steps.Run(tt, "test/valid.feature")
+
+	assert.True(t, tt.Failed())
+}
+
+func ExampleRun_WithUndefinedSteps() {
 	steps := make(Definitions)
 
-	localT := &mockTestingFramework{}
-	steps.Run(localT, "test/valid_with_url_params.feature")
+	t := FuncTestingFramework{
+		err: func(args ...interface{}) { fmt.Println(args...) },
+	}
+	steps.Run(t, "test/valid_with_url_params.feature")
 
 	// Output:
 	// Undefined step:
 	// When I get "/something/%{UUID}"
 }
 
-func TestParseFile_FailsOnEmptyFile(t *testing.T) {
+func ExampleRun_WithFailingSteps() {
 	steps := make(Definitions)
-	_, errs := steps.parseFile("file_doesn't_exist")
 
-	assert.NotEmpty(t, errs)
-	assert.Error(t, errs[0])
+	t := FuncTestingFramework{
+		err: func(args ...interface{}) { fmt.Println(args...) },
+		log: func(args ...interface{}) { fmt.Println(args...) },
+	}
+	steps.When("I create a user with the following json data:", func([]string, StepNode) {})
+	steps.Then("the user should be created with the expected data", func([]string, StepNode) {
+		t.Error("Expectation failed")
+	})
+
+	steps.Run(t, "test/valid.feature")
+
+	// Output:
+	// Scenario: Create a user with a json payload
+	// Expectation failed
 }
 
-func TestParseFile_FailsOnInvalidGherkin(t *testing.T) {
-	steps := make(Definitions)
-	_, errs := steps.parseFile("test/invalid.feature")
-
-	assert.NotEmpty(t, errs)
-	assert.Error(t, errs[0])
-}
-
-func TestParseFile_FailsOnUnDefinedSteps(t *testing.T) {
-	steps := make(Definitions)
-	_, errs := steps.parseFile("test/valid.feature")
-
-	assert.NotEmpty(t, errs)
-	assert.Error(t, errs[0])
-}
-
-func TestParseFile_SuccessWithOutlineSteps(t *testing.T) {
+func TestRun_SuccessWithOutlineSteps(t *testing.T) {
 	steps := make(Definitions)
 
 	steps.Given("I have no users", func([]string, StepNode) {})
 	steps.When("I create a new user with the following data:", func([]string, StepNode) {})
 	steps.Then("no users should be created", func([]string, StepNode) {})
 
-	_, errs := steps.parseFile("test/valid_with_outline.feature")
-
-	assert.Empty(t, errs)
+	steps.Run(t, "test/valid_with_outline.feature")
 }
 
-func TestParseFile_SuccessWithPyString(t *testing.T) {
+func TestRun_SuccessWithPyString(t *testing.T) {
 	steps := make(Definitions)
 
 	steps.Given("I do something the following json data:", func([]string, StepNode) {})
 	steps.When("I do something", func([]string, StepNode) {})
 	steps.Then("something should have happened", func([]string, StepNode) {})
 
-	_, errs := steps.parseFile("test/valid_with_pystring.feature")
-
-	assert.Empty(t, errs)
+	steps.Run(t, "test/valid_with_pystring.feature")
 }
 
 func TestColumnMap_Happy(t *testing.T) {
 	steps := make(Definitions)
 
-	steps.When("I create something with the following table data:", func([]string, StepNode) {})
+	var called bool
+	steps.When("I create something with the following table data:", func(_ []string, step StepNode) {
+		called = true
+		assert.Equal(t,
+			map[string]string{
+				"key":  "value",
+				"key1": "value1",
+				"key2": "value2",
+				"key3": "value3",
+			},
+			ColumnMap(step.Table()))
+	})
 
-	definitions, errs := steps.parseFile("test/valid_with_table_data.feature")
-	assert.Empty(t, errs)
+	steps.Run(t, "test/valid_with_table_data.feature")
 
-	result := ColumnMap(definitions[0].step.Table())
-	assert.Equal(t, "value", result["key"])
-	assert.Equal(t, "value1", result["key1"])
-	assert.Equal(t, "value2", result["key2"])
-	assert.Equal(t, "value3", result["key3"])
+	assert.True(t, called)
 }
 
 func TestExec_MatchFound(t *testing.T) {
