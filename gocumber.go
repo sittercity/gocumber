@@ -20,9 +20,8 @@ type matchedDefinition struct {
 	definition Definition
 }
 
-func (matched matchedDefinition) execute() {
-	matched.definition(matched.matches, matched.step)
-}
+func (m matchedDefinition) execute()      { m.definition(m.matches, m.step) }
+func (m matchedDefinition) pending() bool { return m.definition == nil }
 
 type testingFramework interface {
 	Error(args ...interface{})
@@ -97,6 +96,8 @@ func (defs *Definitions) Run(t testingFramework, file string) {
 	} else if feature, err := gherkin.ParseGherkinFeature(string(buffer)); err != nil {
 		t.Error(err)
 	} else {
+
+	ScenarioLoop:
 		for _, scenario := range feature.Scenarios() {
 			var steps []nodes.StepNode
 
@@ -115,15 +116,22 @@ func (defs *Definitions) Run(t testingFramework, file string) {
 
 			matched, missing := defs.findAll(steps)
 
-			if len(missing) == 0 {
-				t.Log("Scenario: " + scenario.Title())
-				for _, definition := range matched {
-					definition.execute()
-				}
-			} else {
+			if len(missing) > 0 {
 				for _, step := range missing {
 					t.Error(fmt.Errorf("Undefined step:\n%s %s", step.StepType(), step.Text()))
 				}
+				continue ScenarioLoop
+			}
+
+			t.Log("Scenario: " + scenario.Title())
+
+			for _, definition := range matched {
+				if definition.pending() {
+					t.Error(fmt.Errorf("Pending step:\n%s %s", definition.step.StepType(), definition.step.Text()))
+					continue ScenarioLoop
+				}
+
+				definition.execute()
 			}
 		}
 	}
