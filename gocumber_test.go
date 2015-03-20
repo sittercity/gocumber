@@ -17,12 +17,15 @@ func (t FuncTestingFramework) Log(args ...interface{})   { t.log(args...) }
 
 func TestRun_HappyPath(t *testing.T) {
 	steps := make(Definitions)
+	tt := new(testing.T)
 
 	// Simply defining steps to prove that it parses right, no need to fill them in
 	steps.When("I create a user with the following json data:", func([]string, StepNode) {})
 	steps.Then("the user should be created with the expected data", func([]string, StepNode) {})
 
-	steps.Run(t, "test/valid.feature")
+	steps.Run(tt, "test/valid.feature")
+
+	assert.False(t, tt.Failed())
 }
 
 func TestRun_FailsOnMissingFile(t *testing.T) {
@@ -55,10 +58,10 @@ func TestRun_FailsOnUndefinedSteps(t *testing.T) {
 func ExampleRun_WithUndefinedSteps() {
 	steps := make(Definitions)
 
-	t := FuncTestingFramework{
+	tt := FuncTestingFramework{
 		err: func(args ...interface{}) { fmt.Println(args...) },
 	}
-	steps.Run(t, "test/valid_with_url_params.feature")
+	steps.Run(tt, "test/valid_with_url_params.feature")
 
 	// Output:
 	// Undefined step:
@@ -68,16 +71,16 @@ func ExampleRun_WithUndefinedSteps() {
 func ExampleRun_WithFailingSteps() {
 	steps := make(Definitions)
 
-	t := FuncTestingFramework{
+	tt := FuncTestingFramework{
 		err: func(args ...interface{}) { fmt.Println(args...) },
 		log: func(args ...interface{}) { fmt.Println(args...) },
 	}
 	steps.When("I create a user with the following json data:", func([]string, StepNode) {})
 	steps.Then("the user should be created with the expected data", func([]string, StepNode) {
-		t.Error("Expectation failed")
+		tt.Error("Expectation failed")
 	})
 
-	steps.Run(t, "test/valid.feature")
+	steps.Run(tt, "test/valid.feature")
 
 	// Output:
 	// Scenario: Create a user with a json payload
@@ -86,26 +89,33 @@ func ExampleRun_WithFailingSteps() {
 
 func TestRun_SuccessWithOutlineSteps(t *testing.T) {
 	steps := make(Definitions)
+	tt := new(testing.T)
 
 	steps.Given("I have no users", func([]string, StepNode) {})
 	steps.When("I create a new user with the following data:", func([]string, StepNode) {})
 	steps.Then("no users should be created", func([]string, StepNode) {})
 
-	steps.Run(t, "test/valid_with_outline.feature")
+	steps.Run(tt, "test/valid_with_outline.feature")
+
+	assert.False(t, tt.Failed())
 }
 
 func TestRun_SuccessWithPyString(t *testing.T) {
 	steps := make(Definitions)
+	tt := new(testing.T)
 
 	steps.Given("I do something the following json data:", func([]string, StepNode) {})
 	steps.When("I do something", func([]string, StepNode) {})
 	steps.Then("something should have happened", func([]string, StepNode) {})
 
-	steps.Run(t, "test/valid_with_pystring.feature")
+	steps.Run(tt, "test/valid_with_pystring.feature")
+
+	assert.False(t, tt.Failed())
 }
 
 func TestColumnMap_Happy(t *testing.T) {
 	steps := make(Definitions)
+	tt := new(testing.T)
 
 	var called bool
 	steps.When("I create something with the following table data:", func(_ []string, step StepNode) {
@@ -120,9 +130,10 @@ func TestColumnMap_Happy(t *testing.T) {
 			ColumnMap(step.Table()))
 	})
 
-	steps.Run(t, "test/valid_with_table_data.feature")
+	steps.Run(tt, "test/valid_with_table_data.feature")
 
 	assert.True(t, called)
+	assert.False(t, tt.Failed())
 }
 
 func TestExec_MatchFound(t *testing.T) {
