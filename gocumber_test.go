@@ -117,6 +117,24 @@ func ExampleRun_WithFailingSteps() {
 	// Expectation failed
 }
 
+func TestRun_SuccessWithBackground(t *testing.T) {
+	steps := make(Definitions)
+	tt := new(testing.T)
+
+	var called int
+	steps.Given("I am able to perform", func([]string, StepNode) {
+		called++
+	})
+	steps.When("I perform admirably", func([]string, StepNode) {})
+	steps.When("I act a fool", func([]string, StepNode) {})
+	steps.Then("things should go well", func([]string, StepNode) {})
+
+	steps.Run(tt, "test/valid_with_background.feature")
+
+	assert.Equal(t, 2, called, "Expected background to be executed for each scenario")
+	assert.False(t, tt.Failed())
+}
+
 func TestRun_SuccessWithOutlineSteps(t *testing.T) {
 	steps := make(Definitions)
 	tt := new(testing.T)

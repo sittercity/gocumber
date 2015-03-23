@@ -103,7 +103,3 @@ Couldn't be more simple:
 * run `make setup` - Downloads testing dependencies. This only needs to be run once.
 * run `make test`  - Runs the actual tests (including test coverage).
 
-# TODO
-
- - Does not append gherkin background
- - Does not replace outline variables in PyString (like json), must use table format for outline data
