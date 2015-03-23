@@ -101,7 +101,9 @@ func (defs *Definitions) Run(t testingFramework, file string) {
 		for _, scenario := range feature.Scenarios() {
 			var steps []nodes.StepNode
 
-			// TODO append Background
+			if background := feature.Background(); background != nil {
+				steps = append(steps, background.Steps()...)
+			}
 
 			switch scenario := scenario.(type) {
 			case nodes.OutlineNode:
@@ -109,9 +111,7 @@ func (defs *Definitions) Run(t testingFramework, file string) {
 					steps = append(steps, step)
 				})
 			default:
-				for _, step := range scenario.Steps() {
-					steps = append(steps, step)
-				}
+				steps = append(steps, scenario.Steps()...)
 			}
 
 			matched, missing := defs.findAll(steps)
