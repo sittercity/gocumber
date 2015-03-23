@@ -68,6 +68,36 @@ func ExampleRun_WithUndefinedSteps() {
 	// When I get "/something/%{UUID}"
 }
 
+func TestRun_FailsOnPendingSteps(t *testing.T) {
+	steps := make(Definitions)
+	tt := new(testing.T)
+
+	steps.When("I create a user with the following json data:", nil)
+	steps.Then("the user should be created with the expected data", nil)
+
+	steps.Run(tt, "test/valid.feature")
+
+	assert.True(t, tt.Failed())
+}
+
+func ExampleRun_WithPendingSteps() {
+	steps := make(Definitions)
+
+	tt := FuncTestingFramework{
+		err: func(args ...interface{}) { fmt.Println(args...) },
+		log: func(args ...interface{}) { fmt.Println(args...) },
+	}
+	steps.When("I create a user with the following json data:", nil)
+	steps.Then("the user should be created with the expected data", nil)
+
+	steps.Run(tt, "test/valid.feature")
+
+	// Output:
+	// Scenario: Create a user with a json payload
+	// Pending step:
+	// When I create a user with the following json data:
+}
+
 func ExampleRun_WithFailingSteps() {
 	steps := make(Definitions)
 
