@@ -201,3 +201,19 @@ func TestExec_NoMatch(t *testing.T) {
 
 	assert.False(t, steps.Exec("some unknown step"))
 }
+
+func TestDocstrings_OutlineVariables(t *testing.T) {
+	steps := make(Definitions)
+	tt := new(testing.T)
+
+	var called bool
+	steps.Given("something is:", func(_ []string, step StepNode) {
+		called = true
+		assert.Equal(t, "minimally functional\n\n", step.PyString().String())
+	})
+
+	steps.Run(t, "test/valid_with_pystring_outline.feature")
+
+	assert.True(t, called)
+	assert.False(t, tt.Failed())
+}
