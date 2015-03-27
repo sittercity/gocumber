@@ -209,7 +209,7 @@ func TestDocstrings_OutlineVariables(t *testing.T) {
 	var called bool
 	steps.Given("something is:", func(_ []string, step StepNode) {
 		called = true
-		assert.Equal(t, "minimally functional\n\n", step.PyString().String())
+		assert.Equal(t, []string{"minimally functional"}, step.PyString().Lines())
 	})
 
 	steps.Run(t, "test/valid_with_pystring_outline.feature")

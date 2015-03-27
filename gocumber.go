@@ -172,7 +172,9 @@ func outlineSteps(outline nodes.OutlineNode, callback func(nodes.StepNode)) {
 			step.SetTable(table)
 		} else if original.PyString() != nil {
 			pyString := nodes.NewMutablePyStringNode()
-			pyString.AddLine(replace(original.PyString().String()))
+			for _, line := range original.PyString().Lines() {
+				pyString.AddLine(replace(line))
+			}
 
 			step.SetPyString(pyString)
 		}
