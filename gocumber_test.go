@@ -206,14 +206,32 @@ func TestDocstrings_OutlineVariables(t *testing.T) {
 	steps := make(Definitions)
 	tt := new(testing.T)
 
-	var called bool
+	var called int
 	steps.Given("something is:", func(_ []string, step StepNode) {
-		called = true
+		called++
 		assert.Equal(t, []string{"minimally functional"}, step.PyString().Lines())
 	})
 
 	steps.Run(t, "test/valid_with_pystring_outline.feature")
 
-	assert.True(t, called)
+	assert.Equal(t, 1, called, "Expected scenario to be executed for each outline example")
+	assert.False(t, tt.Failed())
+}
+
+func TestDocstrings_OutlineVariablesWithMultipleExamples(t *testing.T) {
+	steps := make(Definitions)
+	tt := new(testing.T)
+
+	var expected_replaced_pystrings = []string{"minimally functional barely", "incredibly functional overwhelmingly"}
+
+	var called int
+	steps.Given("something is:", func(_ []string, step StepNode) {
+		assert.Equal(t, []string{expected_replaced_pystrings[called]}, step.PyString().Lines())
+		called++
+	})
+
+	steps.Run(t, "test/valid_with_pystring_outline_multiple_examples.feature")
+
+	assert.Equal(t, 2, called, "Expected scenario to be executed for each outline example")
 	assert.False(t, tt.Failed())
 }

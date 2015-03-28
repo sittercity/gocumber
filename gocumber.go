@@ -151,34 +151,34 @@ func outlineSteps(outline nodes.OutlineNode, callback func(nodes.StepNode)) {
 		for i, key := range header {
 			replacements["<"+key+">"] = row[i]
 		}
-	}
 
-	for _, original := range outline.Steps() {
-		step := nodes.NewMutableStepNode(original.StepType(), replace(original.Text()))
+		for _, original := range outline.Steps() {
+			step := nodes.NewMutableStepNode(original.StepType(), replace(original.Text()))
 
-		if original.Table() != nil {
-			table := nodes.NewMutableTableNode()
+			if original.Table() != nil {
+				table := nodes.NewMutableTableNode()
 
-			for _, row := range original.Table().Rows() {
-				replaced := make([]string, len(row))
+				for _, row := range original.Table().Rows() {
+					replaced := make([]string, len(row))
 
-				for i, cell := range row {
-					replaced[i] = replace(cell)
+					for i, cell := range row {
+						replaced[i] = replace(cell)
+					}
+
+					table.AddRow(replaced)
 				}
 
-				table.AddRow(replaced)
+				step.SetTable(table)
+			} else if original.PyString() != nil {
+				pyString := nodes.NewMutablePyStringNode()
+				for _, line := range original.PyString().Lines() {
+					pyString.AddLine(replace(line))
+				}
+
+				step.SetPyString(pyString)
 			}
 
-			step.SetTable(table)
-		} else if original.PyString() != nil {
-			pyString := nodes.NewMutablePyStringNode()
-			for _, line := range original.PyString().Lines() {
-				pyString.AddLine(replace(line))
-			}
-
-			step.SetPyString(pyString)
+			callback(step)
 		}
-
-		callback(step)
 	}
 }
