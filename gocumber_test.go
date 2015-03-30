@@ -142,53 +142,56 @@ func TestRun_SuccessWithOutlineSteps(t *testing.T) {
 	steps.Given("I have no users", func([]string, StepNode) {})
 	steps.Then("no users should be created", func([]string, StepNode) {})
 
-	var expected_first_example = map[string]string{
-		"key":      "value",
-		"username": "",
-		"first":    "",
-		"last":     "",
-	}
-
-	var expected_second_example = map[string]string{
-		"key":      "value",
-		"username": "",
-		"first":    "fname",
-		"last":     "lname",
-	}
-
-	var expected_third_example = map[string]string{
-		"key":      "value",
-		"username": "newuser",
-		"first":    "",
-		"last":     "lname",
-	}
-
-	var expected_fourth_example = map[string]string{
-		"key":      "value",
-		"username": "newuser",
-		"first":    "fname",
-		"last":     "",
-	}
-
-	var expected_fifth_example = map[string]string{
-		"key":      "value",
-		"username": "newuser",
-		"first":    "fname",
-		"last":     "lname",
-	}
-
-	var expected_replaced_table_data = []map[string]string{
-		expected_first_example,
-		expected_second_example,
-		expected_third_example,
-		expected_fourth_example,
-		expected_fifth_example,
-	}
-
 	var called int
 	steps.When("I create a new user with the following data:", func(_ []string, step StepNode) {
-		assert.Equal(t, expected_replaced_table_data[called], ColumnMap(step.Table()))
 		called++
+		switch called {
+		case 1:
+			assert.Equal(t,
+				map[string]string{
+					"key":      "value",
+					"username": "",
+					"first":    "",
+					"last":     "",
+				},
+				ColumnMap(step.Table()))
+		case 2:
+			assert.Equal(t,
+				map[string]string{
+					"key":      "value",
+					"username": "",
+					"first":    "fname",
+					"last":     "lname",
+				},
+				ColumnMap(step.Table()))
+		case 3:
+			assert.Equal(t,
+				map[string]string{
+					"key":      "value",
+					"username": "newuser",
+					"first":    "",
+					"last":     "lname",
+				},
+				ColumnMap(step.Table()))
+		case 4:
+			assert.Equal(t,
+				map[string]string{
+					"key":      "value",
+					"username": "newuser",
+					"first":    "fname",
+					"last":     "",
+				},
+				ColumnMap(step.Table()))
+		case 5:
+			assert.Equal(t,
+				map[string]string{
+					"key":      "value",
+					"username": "newuser",
+					"first":    "fname",
+					"last":     "lname",
+				},
+				ColumnMap(step.Table()))
+		}
 	})
 
 	steps.Run(tt, "test/valid_with_outline.feature")
