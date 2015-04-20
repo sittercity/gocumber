@@ -236,7 +236,7 @@ func TestColumnMap_Happy(t *testing.T) {
 	assert.False(t, tt.Failed())
 }
 
-func TestRowMap_Happy(t *testing.T) {
+func TestRowMaps_Happy(t *testing.T) {
 	steps := make(Definitions)
 	tt := new(testing.T)
 
@@ -258,7 +258,7 @@ func TestRowMap_Happy(t *testing.T) {
 					"key4": "more4",
 				},
 			},
-			RowMap(step.Table()))
+			RowMaps(step.Table()))
 	})
 
 	steps.Run(tt, "test/valid_with_row_table_data.feature")

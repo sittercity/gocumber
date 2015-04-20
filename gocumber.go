@@ -38,7 +38,7 @@ func ColumnMap(table Table) map[string]string {
 	return result
 }
 
-func RowMap(table Table) []map[string]string {
+func RowMaps(table Table) []map[string]string {
 	result := make([]map[string]string, 0, len(table.Rows())-1)
 
 	header := table.Rows()[0]
