@@ -38,14 +38,18 @@ func ColumnMap(table Table) map[string]string {
 	return result
 }
 
-func RowMap(table Table) map[string]string {
-	result := make(map[string]string)
+func RowMap(table Table) []map[string]string {
+	result := make([]map[string]string, 0, len(table.Rows())-1)
 
 	header := table.Rows()[0]
 	for _, row := range table.Rows()[1:] {
+		subRow := make(map[string]string)
+
 		for i, key := range header {
-			result[key] = row[i]
+			subRow[key] = row[i]
 		}
+
+		result = append(result, subRow)
 	}
 
 	return result

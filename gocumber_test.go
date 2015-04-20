@@ -244,11 +244,19 @@ func TestRowMap_Happy(t *testing.T) {
 	steps.When("I create something with the following table data:", func(_ []string, step StepNode) {
 		called = true
 		assert.Equal(t,
-			map[string]string{
-				"key1": "value1",
-				"key2": "value2",
-				"key3": "value3",
-				"key4": "value4",
+			[]map[string]string{
+				map[string]string{
+					"key1": "value1",
+					"key2": "value2",
+					"key3": "value3",
+					"key4": "value4",
+				},
+				map[string]string{
+					"key1": "more1",
+					"key2": "more2",
+					"key3": "more3",
+					"key4": "more4",
+				},
 			},
 			RowMap(step.Table()))
 	})
