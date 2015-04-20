@@ -230,7 +230,30 @@ func TestColumnMap_Happy(t *testing.T) {
 			ColumnMap(step.Table()))
 	})
 
-	steps.Run(tt, "test/valid_with_table_data.feature")
+	steps.Run(tt, "test/valid_with_column_table_data.feature")
+
+	assert.True(t, called)
+	assert.False(t, tt.Failed())
+}
+
+func TestRowMap_Happy(t *testing.T) {
+	steps := make(Definitions)
+	tt := new(testing.T)
+
+	var called bool
+	steps.When("I create something with the following table data:", func(_ []string, step StepNode) {
+		called = true
+		assert.Equal(t,
+			map[string]string{
+				"key1": "value1",
+				"key2": "value2",
+				"key3": "value3",
+				"key4": "value4",
+			},
+			RowMap(step.Table()))
+	})
+
+	steps.Run(tt, "test/valid_with_row_table_data.feature")
 
 	assert.True(t, called)
 	assert.False(t, tt.Failed())
