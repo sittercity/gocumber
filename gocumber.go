@@ -38,6 +38,23 @@ func ColumnMap(table Table) map[string]string {
 	return result
 }
 
+func RowMaps(table Table) []map[string]string {
+	result := make([]map[string]string, 0, len(table.Rows())-1)
+
+	header := table.Rows()[0]
+	for _, row := range table.Rows()[1:] {
+		subRow := make(map[string]string)
+
+		for i, key := range header {
+			subRow[key] = row[i]
+		}
+
+		result = append(result, subRow)
+	}
+
+	return result
+}
+
 func (defs Definitions) Step(text string, def Definition) {
 	defs[regexp.MustCompile("^"+text+"$")] = def
 }
